@@ -36,7 +36,7 @@ class LLMClassifierResult:
     reasoning: str
 
 
-def classify(text: str, *, settings: "Settings") -> LLMClassifierResult | None:
+def classify(text: str, *, settings: Settings) -> LLMClassifierResult | None:
     """Classify text using the configured LLM provider. Returns None on any failure."""
     provider = settings.llm_classifier_provider
     try:
@@ -56,7 +56,7 @@ def classify(text: str, *, settings: "Settings") -> LLMClassifierResult | None:
 
 # ── Anthropic ─────────────────────────────────────────────────────────────────
 
-def _classify_anthropic(text: str, *, settings: "Settings") -> LLMClassifierResult | None:
+def _classify_anthropic(text: str, *, settings: Settings) -> LLMClassifierResult | None:
     try:
         import anthropic
     except ImportError:
@@ -76,7 +76,7 @@ def _classify_anthropic(text: str, *, settings: "Settings") -> LLMClassifierResu
 
 # ── OpenAI (also works for Azure OpenAI, Ollama, any OpenAI-compatible API) ──
 
-def _classify_openai(text: str, *, settings: "Settings") -> LLMClassifierResult | None:
+def _classify_openai(text: str, *, settings: Settings) -> LLMClassifierResult | None:
     try:
         from openai import OpenAI
     except ImportError:
@@ -104,7 +104,7 @@ def _classify_openai(text: str, *, settings: "Settings") -> LLMClassifierResult 
 
 # ── AWS Bedrock ───────────────────────────────────────────────────────────────
 
-def _classify_bedrock(text: str, *, settings: "Settings") -> LLMClassifierResult | None:
+def _classify_bedrock(text: str, *, settings: Settings) -> LLMClassifierResult | None:
     try:
         import boto3
     except ImportError:

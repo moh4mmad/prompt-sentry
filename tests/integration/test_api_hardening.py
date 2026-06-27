@@ -13,9 +13,8 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
-from app.core.config import Settings, get_settings
+from app.core.config import Settings
 from app.main import create_app
-
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -133,12 +132,12 @@ class TestRequestSizeLimit:
     def test_oversized_body_returns_413(self):
         # Build a minimal app with a tiny size limit and test it directly
         from fastapi import FastAPI
-        from fastapi.middleware.cors import CORSMiddleware
-        from starlette.middleware.base import BaseHTTPMiddleware
-        from app.core.config import Settings as S
-        from app.core.ratelimit import request_size_middleware
-        from app.core.errors import http_exception_handler
         from starlette.exceptions import HTTPException as StarletteHTTPException
+        from starlette.middleware.base import BaseHTTPMiddleware
+
+        from app.core.config import Settings as S
+        from app.core.errors import http_exception_handler
+        from app.core.ratelimit import request_size_middleware
 
         settings = S(audit_log_path="/tmp/test_size.jsonl", max_request_bytes=100)
         mini_app = FastAPI()

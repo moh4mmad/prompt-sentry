@@ -5,14 +5,12 @@ ensemble scorer fallback, rate limit config, request size, API key auth.
 
 from pathlib import Path
 
-import pytest
-
 from app.core.config import Settings
+from app.detectors.normalizer import normalize_text
 from app.logging.audit import AuditLogger
 from app.middleware.firewall import PromptSentry
 from app.models.schemas import Action, AttackType, SecurityRequest, Source
 from app.scoring.risk import calculate_risk, ensemble_risk
-from app.detectors.normalizer import normalize_text
 
 
 def fw(tmp_path: Path, **kwargs) -> PromptSentry:

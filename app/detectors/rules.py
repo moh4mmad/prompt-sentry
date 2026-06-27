@@ -42,7 +42,11 @@ RULES: tuple[Rule, ...] = (
         Severity.HIGH,
         0.88,
         "start fresh / forget all rules override",
-        re.compile(r"\b(forget|discard|erase)\b.{0,40}\b(every|all).{0,20}\b(rule|instruction|guideline|prompt)\b", re.I),
+        re.compile(
+            r"\b(forget|discard|erase)\b.{0,40}\b(every|all).{0,20}"
+            r"\b(rule|instruction|guideline|prompt)\b",
+            re.I,
+        ),
         None,
     ),
     Rule(
@@ -97,7 +101,8 @@ RULES: tuple[Rule, ...] = (
         "jailbreak or persona bypass phrase",
         re.compile(
             r"\b(DAN|developer mode|jailbreak|no restrictions|unfiltered|pretend you are|roleplay as"
-            r"|act as an? (unrestricted|unfiltered|uncensored)|without (safety|ethical|content) (guidelines|filters?|restrictions?)"
+            r"|act as an? (unrestricted|unfiltered|uncensored)"
+            r"|without (safety|ethical|content) (guidelines|filters?|restrictions?)"
             r"|disable (safety|content|ethical) (filter|guideline|mode)"
             r"|enable (developer|unrestricted|jailbreak) mode)\b",
             re.I,
@@ -127,7 +132,8 @@ RULES: tuple[Rule, ...] = (
         "request to reveal hidden prompt or internal instructions",
         re.compile(
             r"\b(reveal|print|show|dump|exfiltrate|repeat|output|display|tell me)\b.{0,60}"
-            r"\b(system prompt|developer prompt|hidden instructions?|internal instructions?|initial (prompt|instructions?)|"
+            r"\b(system prompt|developer prompt|hidden instructions?|internal instructions?"
+            r"|initial (prompt|instructions?)|"
             r"your instructions?|what (you were|they) (told|given)|verbatim)\b",
             re.I,
         ),
@@ -140,7 +146,8 @@ RULES: tuple[Rule, ...] = (
         "request for developer-given instructions verbatim",
         re.compile(
             r"\b(what (instructions?|rules?|guidelines?) (did|were|have).{0,30}(give|given|told|provided))\b"
-            r"|\b(show|print|repeat|give me) (your )?(exact|verbatim|full|all (the)?) (instructions?|rules?|guidelines?|prompt)\b",
+            r"|\b(show|print|repeat|give me) (your )?"
+            r"(exact|verbatim|full|all (the)?) (instructions?|rules?|guidelines?|prompt)\b",
             re.I,
         ),
         None,
