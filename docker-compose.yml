@@ -1,0 +1,57 @@
+services:
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8100:8100"
+    environment:
+      PROMPT_SENTRY_MODE: protect
+      AUDIT_LOG_SINK: file
+      AUDIT_LOG_PATH: /app/logs/audit.jsonl
+      # Optional — require X-API-Key on all requests
+      # API_KEY: "your-secret-key"
+      # ── LLM ensemble classifier (opt-in) ──────────────────────────────────
+      # Anthropic (default):
+      # LLM_CLASSIFIER_ENABLED: "true"
+      # LLM_CLASSIFIER_PROVIDER: "anthropic"
+      # LLM_CLASSIFIER_MODEL: "claude-haiku-4-5-20251001"
+      # LLM_CLASSIFIER_API_KEY: "sk-ant-..."
+      # OpenAI / Azure / Ollama:
+      # LLM_CLASSIFIER_ENABLED: "true"
+      # LLM_CLASSIFIER_PROVIDER: "openai"
+      # LLM_CLASSIFIER_MODEL: "gpt-4o-mini"
+      # LLM_CLASSIFIER_API_KEY: "sk-..."
+      # LLM_CLASSIFIER_OPENAI_BASE_URL: "https://api.openai.com/v1"
+      # AWS Bedrock (uses IAM — add AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY):
+      # LLM_CLASSIFIER_ENABLED: "true"
+      # LLM_CLASSIFIER_PROVIDER: "bedrock"
+      # LLM_CLASSIFIER_MODEL: "anthropic.claude-haiku-4-5-20251001-v1:0"
+      # LLM_CLASSIFIER_AWS_REGION: "us-east-1"
+    volumes:
+      - audit_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8100/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+      args:
+        # Resolved from the browser — must be the host-visible API address
+        NEXT_PUBLIC_API_URL: http://localhost:8100
+    ports:
+      - "3100:3100"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  audit_logs:
