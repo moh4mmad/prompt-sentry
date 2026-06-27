@@ -1,6 +1,6 @@
 # PromptSentry
 
-[![CI](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml/badge.svg)](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml)
+[![CI](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-103%20passing-brightgreen)](#running-tests)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
