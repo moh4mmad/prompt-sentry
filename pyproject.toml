@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prompt-sentry"
+version = "0.1.0"
+description = "Security middleware for LLM applications — detects and blocks prompt injection attacks."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.111,<1.0",
+    "pydantic-settings>=2.3,<3.0",
+    "uvicorn[standard]>=0.30,<1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx>=0.27,<1.0",
+    "pytest>=8.2,<9.0",
+    "ruff>=0.5,<1.0",
+]
+llm = [
+    "anthropic>=0.40,<1.0",
+]
+llm-openai = [
+    "openai>=1.30,<2.0",
+]
+llm-bedrock = [
+    "boto3>=1.34,<2.0",
+]
+dashboard = [
+    "httpx>=0.27,<1.0",
+]
+all = [
+    "anthropic>=0.40,<1.0",
+    "openai>=1.30,<2.0",
+    "boto3>=1.34,<2.0",
+    "httpx>=0.27,<1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["B008"]
