@@ -5,7 +5,7 @@ Thanks for your interest. Contributions that improve detection coverage, fix fal
 ## Getting set up
 
 ```bash
-git clone https://github.com/your-username/prompt-sentry
+git clone https://github.com/moh4mmad/prompt-sentry
 cd prompt-sentry
 python3.12 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
