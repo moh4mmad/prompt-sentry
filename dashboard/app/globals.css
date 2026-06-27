@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+:root {
+  --bg:       #02040a;
+  --bg2:      #04070f;
+  --surface:  #070d1a;
+  --surface2: #0a1221;
+  --border:   #0f1e35;
+  --border2:  #162845;
+  --text:     #b8cce4;
+  --muted:    #2a4060;
+  --muted2:   #3d5878;
+
+  --green:        #00ffa3;
+  --green-dim:    #00ffa318;
+  --green-border: #00ffa340;
+
+  --amber:        #ffc107;
+  --amber-dim:    #ffc10718;
+  --amber-border: #ffc10740;
+
+  --red:        #ff1744;
+  --red-dim:    #ff174418;
+  --red-border: #ff174440;
+
+  --blue:        #00b0ff;
+  --blue-dim:    #00b0ff18;
+  --blue-border: #00b0ff40;
+
+  --purple:     #d050ff;
+  --orange:     #ff6d00;
+
+  --font-mono: var(--font-mono, "Space Mono", monospace);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  margin: 0;
+}
+
+body {
+  color: var(--text);
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* ── Circuit board background ── */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 255, 163, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 163, 0.018) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Scanlines ── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.06) 3px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── CRT vignette ── */
+.crt-vignette {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ── Corner accents ── */
+.corner-accent {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  z-index: 9997;
+  opacity: 0.35;
+}
+.corner-accent.tl { top: 0; left: 0; border-top: 1px solid var(--green); border-left: 1px solid var(--green); }
+.corner-accent.tr { top: 0; right: 0; border-top: 1px solid var(--green); border-right: 1px solid var(--green); }
+.corner-accent.bl { bottom: 0; left: 0; border-bottom: 1px solid var(--green); border-left: 1px solid var(--green); }
+.corner-accent.br { bottom: 0; right: 0; border-bottom: 1px solid var(--green); border-right: 1px solid var(--green); }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── Glitch animation ── */
+@keyframes glitch {
+  0%, 92%, 100% { transform: none; text-shadow: 0 0 12px var(--green); }
+  93%  { transform: translate(-2px, 0); text-shadow: -2px 0 #ff1744, 2px 0 #00b0ff; }
+  95%  { transform: translate(2px, 0);  text-shadow: 2px 0 #ff1744, -2px 0 #00b0ff; }
+  97%  { transform: translate(-1px, 0); text-shadow: -1px 0 #ff1744; }
+}
+
+.glitch {
+  animation: glitch 6s infinite;
+}
+
+/* ── Blink cursor ── */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.blink { animation: blink 1s step-end infinite; }
+
+/* ── Pulse dot ── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+  50% { opacity: 0.6; box-shadow: 0 0 0 4px transparent; }
+}
+.pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
+
+/* ── Neon flicker ── */
+@keyframes neon-flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    text-shadow: 0 0 8px var(--green), 0 0 20px var(--green), 0 0 40px var(--green);
+  }
+  20%, 24%, 55% {
+    text-shadow: none;
+  }
+}
+
+/* ── Counter animation ── */
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.count-up { animation: count-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ── Slide in ── */
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-in { animation: slide-in 0.25s ease both; }
+
+/* ── Fade in ── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade-in { animation: fade-in 0.4s ease both; }
+
+/* ── Scan line sweep (for header) ── */
+@keyframes scan-sweep {
+  0%   { transform: translateY(-100%); opacity: 0.6; }
+  100% { transform: translateY(1400%); opacity: 0; }
+}
+.scan-sweep {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  animation: scan-sweep 4s linear infinite;
+  pointer-events: none;
+}
+
+/* ── Neon card border glow ── */
+.card-glow-green  { box-shadow: 0 0 0 1px var(--green-border),  inset 0 0 30px rgba(0,255,163,0.03); }
+.card-glow-red    { box-shadow: 0 0 0 1px var(--red-border),    inset 0 0 30px rgba(255,23,68,0.03); }
+.card-glow-blue   { box-shadow: 0 0 0 1px var(--blue-border),   inset 0 0 30px rgba(0,176,255,0.03); }
+.card-glow-amber  { box-shadow: 0 0 0 1px var(--amber-border),  inset 0 0 30px rgba(255,193,7,0.03); }
+.card-glow-purple { box-shadow: 0 0 0 1px #d050ff40, inset 0 0 30px rgba(208,80,255,0.03); }
+
+/* ── Monospace numbers ── */
+.mono { font-family: var(--font-mono); }
+
+/* ── Hex pattern overlay on panels ── */
+.hex-bg {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpolygon points='14,2 24,8 24,20 14,26 4,20 4,8' fill='none' stroke='rgba(0,255,163,0.04)' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 28px 28px;
+}
