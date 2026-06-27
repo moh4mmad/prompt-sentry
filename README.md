@@ -7,7 +7,7 @@
 
 A security middleware for AI agents. Sits between your application and the LLM, inspects every prompt and response, and blocks injection attacks before they can do damage.
 
-<!-- Replace with: ![Dashboard](docs/screenshot.png) after taking a screenshot of http://localhost:3100 -->
+![PromptSentry Dashboard](docs/screenshot.png)
 
 ---
 
