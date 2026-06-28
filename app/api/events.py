@@ -2,46 +2,34 @@
 
 from __future__ import annotations
 
-import json
 from collections import Counter
-from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.middleware.cors import CORSMiddleware  # noqa: F401 — imported by main
 from fastapi.responses import JSONResponse
 
-from app.core.config import get_settings
+from app.core.security import require_dashboard_api_key
+from app.logging.audit import AuditLogger
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"])
-
-
-def _read_events(path: Path, limit: int) -> list[dict[str, Any]]:
-    if not path.exists():
-        return []
-    records: list[dict[str, Any]] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            records.append(json.loads(line))
-        except json.JSONDecodeError:
-            continue
-    return records[-limit:]
+router = APIRouter(
+    prefix="/dashboard",
+    tags=["dashboard"],
+    dependencies=[Depends(require_dashboard_api_key)],
+)
 
 
 @router.get("/events")
-def get_events(limit: int = Query(default=200, ge=1, le=2000)) -> JSONResponse:
-    settings = get_settings()
-    events = _read_events(Path(settings.audit_log_path), limit)
+def get_events(request: Request, limit: int = Query(default=200, ge=1, le=2000)) -> JSONResponse:
+    settings = request.app.state.settings
+    events = AuditLogger(settings).read_events(limit)
     return JSONResponse(content={"events": events, "total": len(events)})
 
 
 @router.get("/stats")
-def get_stats(limit: int = Query(default=1000, ge=1, le=10000)) -> JSONResponse:
-    settings = get_settings()
-    events = _read_events(Path(settings.audit_log_path), limit)
+def get_stats(request: Request, limit: int = Query(default=1000, ge=1, le=10000)) -> JSONResponse:
+    settings = request.app.state.settings
+    events: list[dict[str, Any]] = AuditLogger(settings).read_events(limit)
 
     action_counts: Counter[str] = Counter()
     attack_counts: Counter[str] = Counter()

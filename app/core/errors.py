@@ -14,7 +14,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException) 
             "status": exc.status_code,
             "detail": str(exc.detail),
         }
-    return JSONResponse(status_code=exc.status_code, content=body)
+    return JSONResponse(status_code=exc.status_code, content=body, headers=exc.headers)
 
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
