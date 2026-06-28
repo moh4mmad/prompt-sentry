@@ -1,4 +1,4 @@
-node_modules
 .next
-.env.local
-*.md
+node_modules
+npm-debug.log
+.env*

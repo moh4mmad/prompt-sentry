@@ -1,4 +1,30 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: prompt_sentry
+      POSTGRES_USER: prompt_sentry
+      POSTGRES_PASSWORD: local-development-only
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prompt_sentry -d prompt_sentry"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
 
   api:
     build:
@@ -8,31 +34,19 @@ services:
       - "8100:8100"
     environment:
       PROMPT_SENTRY_MODE: protect
-      AUDIT_LOG_SINK: file
-      AUDIT_LOG_PATH: /app/logs/audit.jsonl
-      # Optional — require X-API-Key on all requests
-      # API_KEY: "your-secret-key"
-      # ── LLM ensemble classifier (opt-in) ──────────────────────────────────
-      # Anthropic (default):
-      # LLM_CLASSIFIER_ENABLED: "true"
-      # LLM_CLASSIFIER_PROVIDER: "anthropic"
-      # LLM_CLASSIFIER_MODEL: "claude-haiku-4-5-20251001"
-      # LLM_CLASSIFIER_API_KEY: "sk-ant-..."
-      # OpenAI / Azure / Ollama:
-      # LLM_CLASSIFIER_ENABLED: "true"
-      # LLM_CLASSIFIER_PROVIDER: "openai"
-      # LLM_CLASSIFIER_MODEL: "gpt-4o-mini"
-      # LLM_CLASSIFIER_API_KEY: "sk-..."
-      # LLM_CLASSIFIER_OPENAI_BASE_URL: "https://api.openai.com/v1"
-      # AWS Bedrock (uses IAM — add AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY):
-      # LLM_CLASSIFIER_ENABLED: "true"
-      # LLM_CLASSIFIER_PROVIDER: "bedrock"
-      # LLM_CLASSIFIER_MODEL: "anthropic.claude-haiku-4-5-20251001-v1:0"
-      # LLM_CLASSIFIER_AWS_REGION: "us-east-1"
-    volumes:
-      - audit_logs:/app/logs
+      AUDIT_LOG_SINK: postgres
+      DATABASE_URL: postgresql://prompt_sentry:local-development-only@postgres:5432/prompt_sentry
+      RATE_LIMIT_BACKEND: redis
+      REDIS_URL: redis://redis:6379/0
+      DASHBOARD_API_KEY: local-dashboard-key
+      AUDIT_INCLUDE_REDACTED_INPUT: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8100/health')\""]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8100/ready')\""]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -44,14 +58,23 @@ services:
       context: ./dashboard
       dockerfile: Dockerfile
       args:
-        # Resolved from the browser — must be the host-visible API address
-        NEXT_PUBLIC_API_URL: http://localhost:8100
+        NEXT_PUBLIC_API_DOCS_URL: http://localhost:8100/docs
     ports:
       - "3100:3100"
+    environment:
+      PROMPT_SENTRY_API_URL: http://api:8100
+      DASHBOARD_API_KEY: local-dashboard-key
     depends_on:
       api:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:3100/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     restart: unless-stopped
 
 volumes:
-  audit_logs:
+  postgres_data:
+  redis_data:
