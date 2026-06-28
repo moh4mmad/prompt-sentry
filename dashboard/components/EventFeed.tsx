@@ -47,7 +47,7 @@ export default function EventFeed({ events, limit = 50 }: Props) {
             ⬡
           </div>
           <p className="text-[11px] mono" style={{ color: "var(--muted)" }}>
-            // no events — send a request to the API
+            {"// no events — send a request to the API"}
           </p>
         </div>
       ) : (

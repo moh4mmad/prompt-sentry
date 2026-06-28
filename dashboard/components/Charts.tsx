@@ -72,7 +72,7 @@ function Empty({ accent = "#00ffa3" }: { accent?: string }) {
         ◌
       </div>
       <p className="text-[11px] mono" style={{ color: "var(--muted)" }}>
-        // awaiting data
+        {"// awaiting data"}
       </p>
     </div>
   );

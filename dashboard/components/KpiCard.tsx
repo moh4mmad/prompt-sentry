@@ -104,7 +104,7 @@ export default function KpiCard({ label, value, accent = "#00ffa3", sub, icon }:
 
       {sub && (
         <span className="text-[10px] mono relative z-10" style={{ color: "var(--muted)" }}>
-          // {sub}
+          {"// "}{sub}
         </span>
       )}
     </div>
