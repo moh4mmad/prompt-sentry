@@ -68,7 +68,10 @@ export default function DashboardPage() {
     }
   }, []);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void refresh();
+  }, [refresh]);
 
   useEffect(() => {
     if (!live) return;
@@ -172,7 +175,7 @@ export default function DashboardPage() {
           </button>
 
           <a
-            href={`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8100"}/docs`}
+            href={process.env.NEXT_PUBLIC_API_DOCS_URL ?? "http://localhost:8100/docs"}
             target="_blank"
             rel="noopener noreferrer"
             className="px-3 py-1.5 rounded text-[10px] font-bold mono transition-all hover:bg-white/5"
@@ -194,8 +197,7 @@ export default function DashboardPage() {
           >
             <span>⚠</span>
             <span>
-              CANNOT REACH API —{" "}
-              <code className="text-[10px]">{process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8100"}</code>
+              CANNOT REACH API
             </span>
           </div>
         )}
@@ -221,7 +223,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <h2 className="text-[9px] font-bold tracking-[0.2em] uppercase mono" style={{ color: "var(--muted2)" }}>
-                // Event Feed
+                {"// Event Feed"}
               </h2>
               {events.length > 0 && (
                 <span className="text-[9px] mono px-2 py-0.5 rounded" style={{ background: "#00ffa310", color: "#00ffa3", border: "1px solid #00ffa325" }}>
@@ -241,7 +243,7 @@ export default function DashboardPage() {
         {/* ── Red team ── */}
         <section className="flex flex-col gap-2">
           <h2 className="text-[9px] font-bold tracking-[0.2em] uppercase mono" style={{ color: "var(--muted2)" }}>
-            // Red Team
+            {"// Red Team"}
           </h2>
           <RedTeamPanel />
         </section>
@@ -253,7 +255,7 @@ export default function DashboardPage() {
         style={{ color: "var(--muted)", borderTop: "1px solid var(--border)", letterSpacing: "0.1em" }}
       >
         <span>PROMPTSENTRY <span className="blink">_</span></span>
-        <span style={{ color: "var(--border2)" }}>// polling every {POLL_MS / 1000}s</span>
+        <span style={{ color: "var(--border2)" }}>{"// polling every "}{POLL_MS / 1000}s</span>
         <span>⬡</span>
       </footer>
     </div>
