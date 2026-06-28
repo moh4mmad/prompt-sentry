@@ -1,7 +1,7 @@
 # PromptSentry
 
 [![CI](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-103%20passing-brightgreen)](#running-tests)
+[![Tests](https://img.shields.io/badge/tests-111%20passing-brightgreen)](#running-tests)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -42,9 +42,9 @@ PromptSentry adds that layer. It normalizes input (decoding base64, hex, ROT13, 
 
 - **API**: FastAPI + Uvicorn
 - **Detection**: Deterministic rules + optional Claude Haiku ensemble scorer
-- **Dashboard**: Next.js 14, Tailwind CSS, Recharts
-- **Tests**: pytest, 103 tests across unit, integration, and red-team
-- **Deploy**: Docker Compose (two services, no database required)
+- **Dashboard**: Next.js 16, Tailwind CSS, Recharts
+- **Tests**: pytest, 111 tests across unit, integration, and red-team
+- **Deploy**: Docker Compose with PostgreSQL and Redis; file/in-memory fallbacks for local Python development
 
 ---
 
@@ -132,6 +132,7 @@ curl -s -X POST http://localhost:8100/v1/inspect \
 | Method | Path | What it does |
 |---|---|---|
 | `GET` | `/health` | Health check |
+| `GET` | `/ready` | PostgreSQL and Redis readiness check |
 | `POST` | `/v1/inspect` | Inspect a user prompt or agent input |
 | `POST` | `/v1/scan-content` | Scan retrieved documents, webpages, or tool output |
 | `POST` | `/v1/review-tool-call` | Validate a tool call before it runs |
@@ -241,7 +242,7 @@ Install: `pip install ".[llm-bedrock]"` — AWS credentials via `AWS_ACCESS_KEY_
 ## Running tests
 
 ```bash
-pytest                    # all 103 tests
+pytest                    # all 111 tests
 pytest tests/unit/        # unit tests only
 pytest tests/integration/ # integration + API tests
 ```
@@ -330,6 +331,8 @@ docs/           API contract, threat model, red-team guide
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). In short: add tests for new detection rules, don't commit real credentials, keep PRs focused.
+
+For hardened deployment settings, credentials, health probes, and the production Compose overlay, see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ---
 

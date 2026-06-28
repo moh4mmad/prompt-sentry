@@ -14,7 +14,7 @@ If `API_KEY` is set, all `/v1/*` requests must include:
 X-API-Key: your-secret-key
 ```
 
-Missing or wrong key → `401`. `/health` and `/dashboard/*` are always public.
+Missing or wrong key → `401`. `/health` and `/ready` are public. When `DASHBOARD_API_KEY` is configured, `/dashboard/*` requires the separate `X-Dashboard-Key` header.
 
 ---
 
@@ -46,6 +46,10 @@ data_exfiltration | context_poisoning | sensitive_output_leak
 ```json
 { "status": "ok", "service": "PromptSentry", "version": "0.1.0" }
 ```
+
+## GET /ready
+
+Readiness probe for shared infrastructure. Returns `200` when configured audit storage and rate limiting dependencies are reachable, otherwise `503`.
 
 ---
 
