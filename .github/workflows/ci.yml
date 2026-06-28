@@ -59,3 +59,31 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - run: npm run lint
       - run: npm run build
+
+  agent-integrations:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+        extra: [langchain, llamaindex, openai-agent, anthropic-agent, crewai, mcp]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Install one integration independently
+        run: pip install -e ".[dev,${{ matrix.extra }}]"
+
+      - name: SDK and adapter tests
+        run: python -m pytest tests/sdk -q
+
+      - name: MCP transport tests
+        if: matrix.extra == 'mcp'
+        run: python -m pytest tests/integration/test_mcp_transports.py -q
+
+      - name: Compile runnable examples
+        run: python -m compileall -q examples/integrations
