@@ -1,7 +1,7 @@
 # PromptSentry
 
 [![CI](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-111%20passing-brightgreen)](#running-tests)
+[![Tests](https://img.shields.io/badge/tests-137%20passing-brightgreen)](#running-tests)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -43,7 +43,7 @@ PromptSentry adds that layer. It normalizes input (decoding base64, hex, ROT13, 
 - **API**: FastAPI + Uvicorn
 - **Detection**: Deterministic rules + optional Claude Haiku ensemble scorer
 - **Dashboard**: Next.js 16, Tailwind CSS, Recharts
-- **Tests**: pytest, 111 tests across unit, integration, and red-team
+- **Tests**: pytest, 137 tests across unit, integration, red-team, SDK, and agent adapters
 - **Deploy**: Docker Compose with PostgreSQL and Redis; file/in-memory fallbacks for local Python development
 
 ---
@@ -242,7 +242,7 @@ Install: `pip install ".[llm-bedrock]"` — AWS credentials via `AWS_ACCESS_KEY_
 ## Running tests
 
 ```bash
-pytest                    # all 111 tests
+pytest                    # all 137 tests (live provider tests skip unless explicitly enabled)
 pytest tests/unit/        # unit tests only
 pytest tests/integration/ # integration + API tests
 ```
@@ -302,6 +302,12 @@ Four ready-to-run integration examples are included:
 
 The RAG example is the most important one — indirect injection through retrieved documents is the most common real-world attack vector.
 
+### Agent framework integrations
+
+PromptSentry also ships an installable sync/async SDK with adapters for LangChain, LlamaIndex, OpenAI Responses tool calling, Anthropic tool use, CrewAI, and MCP servers/gateways. Each dependency is an optional install extra, and every adapter reviews a proposed tool before its handler can run.
+
+See [`docs/AGENT_INTEGRATIONS.md`](docs/AGENT_INTEGRATIONS.md) for installation, runtime behavior, limitations, tests, and six runnable examples.
+
 ---
 
 ## Project layout
@@ -318,6 +324,8 @@ app/
   redteam/      Attack library and test runner
   sanitizers/   Strip injections, wrap untrusted content
   scoring/      Risk score, ensemble blending, action mapping
+
+prompt_sentry/  Sync/async SDK and optional agent framework adapters
 
 attack_library/ 100+ labeled attack samples (JSONL)
 dashboard/      Next.js monitoring UI
