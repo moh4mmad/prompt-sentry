@@ -8,6 +8,7 @@ WORKDIR /app
 #   AWS Bedrock         → change to ".[llm,llm-bedrock]"
 #   All providers       → change to ".[all]"
 COPY app/ ./app/
+COPY prompt_sentry/ ./prompt_sentry/
 COPY attack_library/ ./attack_library/
 COPY pyproject.toml README.md ./
 RUN pip install --no-cache-dir ".[production,llm]"
