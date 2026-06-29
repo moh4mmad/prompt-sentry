@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.config import Settings, get_settings
 from app.core.security import require_api_key
@@ -16,6 +16,8 @@ from app.models.schemas import (
     ToolCallReviewResponse,
 )
 from app.redteam.runner import RedTeamRunner
+from prompt_sentry.benchmark.models import BenchmarkReport, BenchmarkRunRequest
+from prompt_sentry.benchmark.runner import BenchmarkRunner
 
 router = APIRouter(prefix="/v1", dependencies=[Depends(require_api_key)])
 
@@ -59,3 +61,14 @@ def run_red_team(
     firewall: FirewallDep,
 ) -> RedTeamRunResponse:
     return RedTeamRunner(firewall).run(request)
+
+
+@router.post("/benchmark/run", response_model=BenchmarkReport)
+def run_benchmark(
+    request: BenchmarkRunRequest,
+    firewall: FirewallDep,
+) -> BenchmarkReport:
+    try:
+        return BenchmarkRunner(firewall).run(request)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
