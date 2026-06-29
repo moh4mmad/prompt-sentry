@@ -1,7 +1,7 @@
 # PromptSentry
 
 [![CI](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-137%20passing-brightgreen)](#running-tests)
+[![Tests](https://img.shields.io/badge/tests-153%20passing-brightgreen)](#running-tests)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -43,7 +43,7 @@ PromptSentry adds that layer. It normalizes input (decoding base64, hex, ROT13, 
 - **API**: FastAPI + Uvicorn
 - **Detection**: Deterministic rules + optional Claude Haiku ensemble scorer
 - **Dashboard**: Next.js 16, Tailwind CSS, Recharts
-- **Tests**: pytest, 137 tests across unit, integration, red-team, SDK, and agent adapters
+- **Tests**: pytest, 153 tests across unit, integration, red-team, benchmark, SDK, and agent adapters
 - **Deploy**: Docker Compose with PostgreSQL and Redis; file/in-memory fallbacks for local Python development
 
 ---
@@ -138,10 +138,22 @@ curl -s -X POST http://localhost:8100/v1/inspect \
 | `POST` | `/v1/review-tool-call` | Validate a tool call before it runs |
 | `POST` | `/v1/verify-output` | Check model output for credential leaks |
 | `POST` | `/v1/red-team/run` | Run the adversarial test suite |
+| `POST` | `/v1/benchmark/run` | Compare protected and unprotected agent workflows |
 | `GET` | `/dashboard/events` | Recent audit events (used by the dashboard) |
 | `GET` | `/dashboard/stats` | Aggregated stats for the dashboard |
 
 Full API reference: [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md)
+
+## Realistic agent benchmark
+
+PromptSentry includes `realistic-agent-v1`: 50 paired cases across RAG documents, webpages, GitHub issues, customer-support email, and dangerous tool calls. A deterministic full run executes 200 protected/unprotected workflows, records attempted and executed side effects, and reports security uplift alongside benign utility.
+
+```bash
+promptsentry-benchmark validate
+promptsentry-benchmark run --protection both --enforce-gates
+```
+
+OpenAI and Anthropic live runs are opt-in; deterministic mode is the CI and release authority. See [`docs/BENCHMARK.md`](docs/BENCHMARK.md) for scenarios, filters, scoring, live providers, and acceptance gates.
 
 ---
 
@@ -242,7 +254,7 @@ Install: `pip install ".[llm-bedrock]"` — AWS credentials via `AWS_ACCESS_KEY_
 ## Running tests
 
 ```bash
-pytest                    # all 137 tests (live provider tests skip unless explicitly enabled)
+pytest                    # all 153 tests (live provider tests skip unless explicitly enabled)
 pytest tests/unit/        # unit tests only
 pytest tests/integration/ # integration + API tests
 ```
@@ -255,6 +267,7 @@ The test suite covers:
 - Edge cases: very long text, unicode, RTL, buried attacks
 - API hardening: auth, rate limits, request size, error shapes
 - Monitor mode, threshold boundaries, ensemble fallback
+- All 200 deterministic benchmark executions, report gates, API/CLI filters, and mocked live providers
 
 ---
 

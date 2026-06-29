@@ -195,6 +195,29 @@ Run adversarial tests against the live firewall.
 
 ---
 
+## POST /v1/benchmark/run
+
+Run complete paired agent workflows. This is synchronous and returns the report directly; the existing red-team endpoint remains the detector-only microbenchmark.
+
+```json
+{
+  "suite": "realistic-agent-v1",
+  "scenarios": ["rag_document", "webpage"],
+  "case_ids": [],
+  "mode": "deterministic",
+  "protection": "both",
+  "seed": 42
+}
+```
+
+`scenarios` and `case_ids` are optional filters. `protection` is `protected`, `unprotected`, or `both`. Live mode additionally requires `provider` (`openai` or `anthropic`) and an explicit `model`; `repetitions`, `live_full_corpus`, `judge_provider`, and `judge_model` are optional.
+
+The response contains run configuration and environment metadata, baseline/protected aggregates, scenario metrics, protection uplift, benign utility delta, composite score, acceptance gates, and per-case traces. Tool traces distinguish proposals, policy decisions, and actual execution.
+
+See [`BENCHMARK.md`](BENCHMARK.md) for the full metric definitions and live-run defaults.
+
+---
+
 ## GET /dashboard/events
 
 Recent audit log entries for the dashboard.
