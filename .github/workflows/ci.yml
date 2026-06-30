@@ -72,6 +72,15 @@ jobs:
       - name: Run defense-profile comparison gates
         run: promptsentry-benchmark run --suite realistic-agent-v2 --compare-defenses --enforce-gates --report-dir benchmark-reports
 
+      - name: Commit updated benchmark results summary
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/benchmark-results.md
+          git diff --cached --quiet || git commit -m "chore(benchmark): update results summary [skip ci]"
+          git push
+
       - name: Upload immutable benchmark reports
         uses: actions/upload-artifact@v4
         with:
