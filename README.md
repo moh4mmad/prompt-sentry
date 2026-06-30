@@ -148,9 +148,12 @@ Full API reference: [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md)
 
 PromptSentry includes `realistic-agent-v1`: 50 paired cases across RAG documents, webpages, GitHub issues, customer-support email, and dangerous tool calls. A deterministic full run executes 200 protected/unprotected workflows, records attempted and executed side effects, and reports security uplift alongside benign utility.
 
+`realistic-agent-v2` adds an eight-profile baseline comparison covering no defense, a transparent keyword filter, LLM-only judging, rules, tool policy, output verification, and the complete stack.
+
 ```bash
 promptsentry-benchmark validate
 promptsentry-benchmark run --protection both --enforce-gates
+promptsentry-benchmark run --suite realistic-agent-v2 --compare-defenses
 ```
 
 OpenAI and Anthropic live runs are opt-in; deterministic mode is the CI and release authority. See [`docs/BENCHMARK.md`](docs/BENCHMARK.md) for scenarios, filters, scoring, live providers, and acceptance gates.
