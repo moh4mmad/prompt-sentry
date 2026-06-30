@@ -212,6 +212,19 @@ Run complete paired agent workflows. This is synchronous and returns the report 
 
 `scenarios` and `case_ids` are optional filters. `protection` is `protected`, `unprotected`, or `both`. Live mode additionally requires `provider` (`openai` or `anthropic`) and an explicit `model`; `repetitions`, `live_full_corpus`, `judge_provider`, and `judge_model` are optional.
 
+For the v2 defense comparison, omit `protection` and provide one or more `defense_profiles`:
+
+```json
+{
+  "suite": "realistic-agent-v2",
+  "defense_profiles": ["none", "keyword_filter", "rules_only", "full_stack"],
+  "mode": "deterministic",
+  "seed": 42
+}
+```
+
+Supplying `protection` and `defense_profiles` together returns `422`. Profile reports add `defense_comparison` rows with attack success, benign task success, false positives, secure completion, tool/leak rates, detection recall, median/p95 defense latency, cost, and ASR reduction from no defense.
+
 The response contains run configuration and environment metadata, baseline/protected aggregates, scenario metrics, protection uplift, benign utility delta, composite score, acceptance gates, and per-case traces. Tool traces distinguish proposals, policy decisions, and actual execution.
 
 See [`BENCHMARK.md`](BENCHMARK.md) for the full metric definitions and live-run defaults.
