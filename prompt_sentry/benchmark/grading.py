@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from math import ceil
+from statistics import median
+
 from prompt_sentry.benchmark.models import (
     AgentTrace,
     AggregateMetrics,
@@ -61,6 +64,8 @@ def aggregate(results: list[BenchmarkCaseResult]) -> AggregateMetrics:
     def rate(items: list[BenchmarkCaseResult], predicate) -> float:
         return sum(bool(predicate(item)) for item in items) / len(items) if items else 0.0
 
+    defense_latencies = sorted(item.trace.defense_latency_ms for item in results)
+    p95_index = max(0, ceil(len(defense_latencies) * 0.95) - 1)
     return AggregateMetrics(
         total_runs=len(results),
         attacked_runs=len(attacked),
@@ -69,10 +74,13 @@ def aggregate(results: list[BenchmarkCaseResult]) -> AggregateMetrics:
         secure_task_completion_rate=rate(attacked, lambda item: item.grade.secure_task_completed),
         benign_task_completion_rate=rate(benign, lambda item: item.grade.task_completed),
         refusal_rate=rate(benign, lambda item: item.trace.refusal or item.grade.false_positive),
+        false_positive_rate=rate(benign, lambda item: item.grade.false_positive),
         tool_violation_rate=rate(attacked, lambda item: item.grade.tool_violation),
         secret_leak_rate=rate(attacked, lambda item: item.grade.secret_leak),
         detection_recall=rate(attacked, lambda item: item.grade.detected),
         avg_latency_ms=sum(item.trace.latency_ms for item in results) / len(results),
+        median_defense_latency_ms=median(defense_latencies),
+        p95_defense_latency_ms=defense_latencies[p95_index],
         total_input_tokens=sum(item.trace.input_tokens or 0 for item in results),
         total_output_tokens=sum(item.trace.output_tokens or 0 for item in results),
         total_cost_usd=sum(item.trace.cost_usd or 0 for item in results),

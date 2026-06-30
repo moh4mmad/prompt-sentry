@@ -6,6 +6,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 BENCHMARK_VERSION = "realistic-agent-v1"
+BENCHMARK_V2 = "realistic-agent-v2"
 
 
 class BenchmarkScenario(StrEnum):
@@ -32,8 +33,33 @@ class BenchmarkVariant(StrEnum):
     ATTACKED = "attacked"
 
 
+class DefenseProfile(StrEnum):
+    NONE = "none"
+    KEYWORD_FILTER = "keyword_filter"
+    LLM_JUDGE = "llm_judge"
+    RULES_ONLY = "rules_only"
+    RULES_LLM = "rules_llm"
+    RULES_TOOL_POLICY = "rules_tool_policy"
+    RULES_OUTPUT_VERIFICATION = "rules_output_verification"
+    FULL_STACK = "full_stack"
+
+
+class AttackStratum(StrEnum):
+    KEYWORD = "keyword"
+    RULES = "rules"
+    LLM = "llm"
+    TOOL_POLICY = "tool_policy"
+    OUTPUT_VERIFICATION = "output_verification"
+
+
+class AttackSurface(StrEnum):
+    CONTENT = "content"
+    TOOL_CALL = "tool_call"
+    OUTPUT = "output"
+
+
 class AttackBehavior(BaseModel):
-    kind: Literal["tool_call", "secret_leak", "task_hijack"]
+    kind: Literal["tool_call", "secret_leak", "task_hijack", "output_leak"]
     tool_name: str | None = None
     arguments: dict[str, Any] = Field(default_factory=dict)
     output: str | None = None
@@ -45,6 +71,8 @@ class AttackBehavior(BaseModel):
             raise ValueError("tool_name is required for tool-based attack behavior")
         if self.kind == "task_hijack" and not self.output:
             raise ValueError("output is required for task_hijack behavior")
+        if self.kind == "output_leak" and not self.canary_key:
+            raise ValueError("canary_key is required for output_leak behavior")
         return self
 
 
@@ -67,6 +95,10 @@ class BenchmarkCase(BaseModel):
         Literal["forbidden_tool_called", "canary_leaked", "task_hijacked", "unauthorized_state_change"]
     ] = Field(min_length=1)
     attack_behavior: AttackBehavior
+    attack_surface: AttackSurface | None = None
+    attack_stratum: AttackStratum | None = None
+    expected_defense_layers: list[AttackStratum] = Field(default_factory=list)
+    benign_keyword_collision: bool = False
     tags: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
@@ -110,6 +142,8 @@ class AgentTrace(BaseModel):
     input_tokens: int | None = None
     output_tokens: int | None = None
     cost_usd: float | None = None
+    defense_latency_ms: float = 0.0
+    defense_latency_source: Literal["measured", "reference_snapshot", "none"] = "none"
 
 
 class CaseGrade(BaseModel):
@@ -129,6 +163,7 @@ class BenchmarkCaseResult(BaseModel):
     scenario: BenchmarkScenario
     variant: BenchmarkVariant
     protection: Literal["protected", "unprotected"]
+    defense_profile: DefenseProfile | None = None
     repetition: int
     trace: AgentTrace
     grade: CaseGrade
@@ -142,21 +177,25 @@ class AggregateMetrics(BaseModel):
     secure_task_completion_rate: float = 0.0
     benign_task_completion_rate: float = 0.0
     refusal_rate: float = 0.0
+    false_positive_rate: float = 0.0
     tool_violation_rate: float = 0.0
     secret_leak_rate: float = 0.0
     detection_recall: float = 0.0
     avg_latency_ms: float = 0.0
+    median_defense_latency_ms: float = 0.0
+    p95_defense_latency_ms: float = 0.0
     total_input_tokens: int = 0
     total_output_tokens: int = 0
     total_cost_usd: float = 0.0
 
 
 class BenchmarkRunRequest(BaseModel):
-    suite: Literal["realistic-agent-v1"] = BENCHMARK_VERSION
+    suite: Literal["realistic-agent-v1", "realistic-agent-v2"] = BENCHMARK_VERSION
     scenarios: list[BenchmarkScenario] = Field(default_factory=list)
     case_ids: list[str] = Field(default_factory=list)
     mode: BenchmarkMode = BenchmarkMode.DETERMINISTIC
     protection: ProtectionMode = ProtectionMode.BOTH
+    defense_profiles: list[DefenseProfile] = Field(default_factory=list)
     provider: Literal["openai", "anthropic"] | None = None
     model: str | None = None
     seed: int = 42
@@ -167,11 +206,32 @@ class BenchmarkRunRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_live_settings(self) -> BenchmarkRunRequest:
+        if self.defense_profiles and "protection" in self.model_fields_set:
+            raise ValueError("protection and defense_profiles cannot be supplied together")
+        if self.defense_profiles and self.suite != BENCHMARK_V2:
+            raise ValueError("defense_profiles require suite realistic-agent-v2")
+        if len(self.defense_profiles) != len(set(self.defense_profiles)):
+            raise ValueError("defense_profiles cannot contain duplicates")
         if self.mode == BenchmarkMode.LIVE and (not self.provider or not self.model):
             raise ValueError("Live mode requires provider and model")
         if bool(self.judge_provider) != bool(self.judge_model):
             raise ValueError("judge_provider and judge_model must be supplied together")
         return self
+
+
+class DefenseComparisonRow(BaseModel):
+    defense_profile: DefenseProfile
+    attack_success_rate: float
+    benign_task_success_rate: float
+    false_positive_rate: float
+    secure_task_completion_rate: float
+    tool_violation_rate: float
+    secret_leak_rate: float
+    detection_recall: float
+    median_defense_latency_ms: float
+    p95_defense_latency_ms: float
+    total_cost_usd: float
+    asr_reduction_vs_none: float
 
 
 class BenchmarkReport(BaseModel):
@@ -183,6 +243,8 @@ class BenchmarkReport(BaseModel):
     protection: ProtectionMode
     provider: str | None = None
     model: str | None = None
+    defense_profiles: list[DefenseProfile] = Field(default_factory=list)
+    defense_comparison: list[DefenseComparisonRow] = Field(default_factory=list)
     environment: dict[str, str] = Field(default_factory=dict)
     repetitions: int
     selected_case_ids: list[str]

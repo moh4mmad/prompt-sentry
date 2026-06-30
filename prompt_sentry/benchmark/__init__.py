@@ -8,6 +8,8 @@ from prompt_sentry.benchmark.models import (
     BenchmarkRunRequest,
     BenchmarkScenario,
     BenchmarkVariant,
+    DefenseComparisonRow,
+    DefenseProfile,
     ProtectionMode,
 )
 from prompt_sentry.benchmark.runner import BenchmarkRunner
@@ -21,5 +23,7 @@ __all__ = [
     "BenchmarkRunner",
     "BenchmarkScenario",
     "BenchmarkVariant",
+    "DefenseComparisonRow",
+    "DefenseProfile",
     "ProtectionMode",
 ]
