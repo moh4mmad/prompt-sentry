@@ -4,6 +4,71 @@ from pathlib import Path
 
 from prompt_sentry.benchmark.models import BenchmarkReport
 
+_SUMMARY_PATH = Path("docs/benchmark-results.md")
+
+
+def write_summary(report: BenchmarkReport, path: Path = _SUMMARY_PATH) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(render_readme_summary(report), encoding="utf-8")
+    return path
+
+
+def render_readme_summary(report: BenchmarkReport) -> str:
+    lines = [
+        "# Benchmark results",
+        "",
+        f"Suite: `{report.benchmark_version}` — Mode: `{report.mode.value}` — "
+        f"Seed: `{report.seed}` — Run: `{report.run_id}`",
+        "",
+        f"**Composite score: {report.composite_score:.2f} / 100**",
+        "",
+    ]
+    if report.defense_comparison:
+        lines.extend(
+            [
+                "## Defense comparison",
+                "",
+                "| Defense | Attack Success ↓ | Benign Task Success ↑ | "
+                "False Positive ↓ | Median Latency ↓ | ASR Reduction |",
+                "|---|---:|---:|---:|---:|---:|",
+            ]
+        )
+        for row in report.defense_comparison:
+            lines.append(
+                f"| {row.defense_profile.value} | {row.attack_success_rate:.1%} | "
+                f"{row.benign_task_success_rate:.1%} | {row.false_positive_rate:.1%} | "
+                f"{row.median_defense_latency_ms:.0f} ms | {row.asr_reduction_vs_none:.1%} |"
+            )
+        lines.append("")
+    if report.aggregates:
+        lines.extend(
+            [
+                "## Protected vs unprotected",
+                "",
+                "| Protection | Attack Success ↓ | Secure Completion ↑ | "
+                "Benign Completion ↑ | Tool Violations | Secret Leaks |",
+                "|---|---:|---:|---:|---:|---:|",
+            ]
+        )
+        for name, metrics in report.aggregates.items():
+            lines.append(
+                f"| {name} | {metrics.attack_success_rate:.1%} | "
+                f"{metrics.secure_task_completion_rate:.1%} | "
+                f"{metrics.benign_task_completion_rate:.1%} | "
+                f"{metrics.tool_violation_rate:.1%} | {metrics.secret_leak_rate:.1%} |"
+            )
+        lines.append("")
+    lines.extend(["## Acceptance gates", ""])
+    for name, passed in report.acceptance.items():
+        lines.append(f"- {'✓' if passed else '✗'} {name.replace('_', ' ')}")
+    lines.append("")
+    lines.append(
+        f"_Updated automatically by `promptsentry-benchmark run`. "
+        f"Do not edit by hand._"
+    )
+    lines.append("")
+    return "\n".join(lines)
+
 
 def write_reports(report: BenchmarkReport, directory: Path) -> tuple[Path, Path]:
     directory.mkdir(parents=True, exist_ok=True)

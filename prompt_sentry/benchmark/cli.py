@@ -8,7 +8,7 @@ from app.middleware.firewall import PromptSentry
 from prompt_sentry.benchmark.loader import load_cases
 from prompt_sentry.benchmark.models import BENCHMARK_V2, BENCHMARK_VERSION, BenchmarkRunRequest, DefenseProfile
 from prompt_sentry.benchmark.replay import SNAPSHOT_PATH, capture_anthropic_snapshot, snapshot_json
-from prompt_sentry.benchmark.reporting import write_reports
+from prompt_sentry.benchmark.reporting import write_reports, write_summary
 from prompt_sentry.benchmark.runner import BenchmarkRunner
 
 
@@ -92,10 +92,11 @@ def main(argv: list[str] | None = None) -> int:
         request = BenchmarkRunRequest(**request_data)
         report = BenchmarkRunner(PromptSentry(Settings(), audit_logger=_NoopAuditLogger())).run(request)  # type: ignore[arg-type]
         json_path, markdown_path = write_reports(report, args.report_dir)
+        summary_path = write_summary(report)
     except (ValueError, RuntimeError, OSError) as exc:
         print(f"benchmark error: {exc}")
         return 2
-    print(f"composite={report.composite_score:.2f} json={json_path} markdown={markdown_path}")
+    print(f"composite={report.composite_score:.2f} json={json_path} markdown={markdown_path} summary={summary_path}")
     if args.enforce_gates and not all(report.acceptance.values()):
         return 1
     return 0
