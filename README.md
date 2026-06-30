@@ -355,6 +355,24 @@ docs/           API contract, threat model, red-team guide
 
 ---
 
+## Limitations
+
+PromptSentry is not a complete replacement for IAM, DLP, network security, or model-level alignment. It is a runtime defense layer — one checkpoint in a wider security posture, not a silver bullet.
+
+**Detection coverage.** Rule-based detection is deterministic and fast but pattern-bound. A sufficiently novel attack that avoids known regex signatures will score low and pass. The optional LLM ensemble improves recall on ambiguous payloads but adds latency, API cost, and non-determinism — a classifier that returns a different confidence on the same input on two separate calls can change the action taken.
+
+**Sanitization is best-effort.** The SANITIZE action strips matching lines and wraps untrusted content in XML markers. A sophisticated multi-vector payload that partially survives sanitization may still influence model behavior; treat sanitized text as reduced-risk, not safe.
+
+**Tool policy covers proposals, not execution.** The tool-call review endpoint decides whether a proposed call should run, but it cannot enforce that your application actually checks the response before dispatching the tool. If your agent loop skips the review or ignores a BLOCK verdict, the protection does not apply.
+
+**MCP server-executed tools.** The MCP gateway protects client-executed tools and returned content. Tools executed server-side on Anthropic infrastructure run before your application code receives the response and cannot be pre-authorized by PromptSentry.
+
+**In-memory rate limiting does not survive restarts.** The default `RATE_LIMIT_BACKEND=memory` counter resets on every process restart. Use `RATE_LIMIT_BACKEND=redis` in production to enforce limits across replicas and restarts.
+
+**Benchmark scope.** The realistic-agent benchmark uses controlled in-memory tools, fake canary secrets, and deterministic page snapshots. It measures whether PromptSentry stops attacks in a simulated environment — not in your specific agent, with your specific tools, data, and model. Composite score 100/100 in CI does not mean zero risk in production. Real-world deployment requires threat-modelling your own trust boundaries and validating against your own data.
+
+---
+
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). In short: add tests for new detection rules, don't commit real credentials, keep PRs focused.
