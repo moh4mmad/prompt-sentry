@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A security middleware for AI agents. Sits between your application and the LLM, inspects every prompt and response, and blocks injection attacks before they can do damage.
+PromptSentry is an open-source runtime security middleware and benchmark for tool-using AI agents. It protects agent workflows across multiple trust boundaries, including user input, retrieved documents, webpages, tool outputs, tool calls, memory, and model outputs. The project evaluates defenses against prompt injection, tool abuse, context poisoning, and secret leakage using realistic RAG, webpage, GitHub issue, support email, and synthetic tool-call scenarios.
 
 ![PromptSentry Dashboard](docs/screenshot.png)
 
