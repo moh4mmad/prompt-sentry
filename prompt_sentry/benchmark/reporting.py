@@ -63,8 +63,8 @@ def render_readme_summary(report: BenchmarkReport) -> str:
         lines.append(f"- {'✓' if passed else '✗'} {name.replace('_', ' ')}")
     lines.append("")
     lines.append(
-        f"_Updated automatically by `promptsentry-benchmark run`. "
-        f"Do not edit by hand._"
+        "_Updated automatically by `promptsentry-benchmark run`. "
+        "Do not edit by hand._"
     )
     lines.append("")
     return "\n".join(lines)
