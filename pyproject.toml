@@ -7,7 +7,11 @@ where = ["."]
 include = ["app*", "prompt_sentry*"]
 
 [tool.setuptools.package-data]
-prompt_sentry = ["benchmark/cases/*.jsonl"]
+prompt_sentry = [
+    "benchmark/cases/*.jsonl",
+    "benchmark/data/*.json",
+    "benchmark/snapshots/*.json",
+]
 
 [project]
 name = "prompt-sentry"
