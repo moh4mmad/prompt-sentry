@@ -1,0 +1,17 @@
+{
+  "version": "keyword-filter-v1",
+  "matching": "case-insensitive literal substring; no normalization or decoding",
+  "phrases": [
+    "ignore previous",
+    "disregard prior",
+    "system prompt",
+    "developer mode",
+    "jailbreak",
+    "api key",
+    "password",
+    "secret",
+    "drop table",
+    "rm -rf",
+    "export the database"
+  ]
+}

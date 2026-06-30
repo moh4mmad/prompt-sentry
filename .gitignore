@@ -39,6 +39,6 @@ htmlcov/
 *.log
 logs/
 
-# Local data
-data/
+# Local data (only top-level; benchmark data is tracked)
+/data/
 tmp/
