@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/moh4mmad/prompt-sentry/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-153%20passing-brightgreen)](#running-tests)
+[![Benchmark](https://img.shields.io/badge/benchmark-results-blue)](docs/benchmark-results.md)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -157,6 +158,8 @@ promptsentry-benchmark run --suite realistic-agent-v2 --compare-defenses
 ```
 
 OpenAI and Anthropic live runs are opt-in; deterministic mode is the CI and release authority. See [`docs/BENCHMARK.md`](docs/BENCHMARK.md) for scenarios, filters, scoring, live providers, and acceptance gates.
+
+Latest results: [`docs/benchmark-results.md`](docs/benchmark-results.md) — updated automatically on every CI benchmark run.
 
 ---
 
